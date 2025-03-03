@@ -1,0 +1,14 @@
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\bin\Debug\net8.0\ECommerceAppFinal.exe
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\bin\Debug\net8.0\ECommerceAppFinal.deps.json
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\bin\Debug\net8.0\ECommerceAppFinal.runtimeconfig.json
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\bin\Debug\net8.0\ECommerceAppFinal.dll
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\bin\Debug\net8.0\ECommerceAppFinal.pdb
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\obj\Debug\net8.0\ECommerceAppFinal.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\obj\Debug\net8.0\ECommerceAppFinal.AssemblyInfoInputs.cache
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\obj\Debug\net8.0\ECommerceAppFinal.AssemblyInfo.cs
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\obj\Debug\net8.0\ECommerceAppFinal.csproj.CoreCompileInputs.cache
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\obj\Debug\net8.0\ECommerceAppFinal.dll
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\obj\Debug\net8.0\refint\ECommerceAppFinal.dll
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\obj\Debug\net8.0\ECommerceAppFinal.pdb
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\obj\Debug\net8.0\ECommerceAppFinal.genruntimeconfig.cache
+C:\Users\10decoders\source\repos\ECommerceAppFinal\ECommerceAppFinal\obj\Debug\net8.0\ref\ECommerceAppFinal.dll
