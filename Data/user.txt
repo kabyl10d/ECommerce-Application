@@ -1,2 +1,0 @@
-1|admin|admin|admin|Admin
-2|lk@gmail.com|leokabyl|12345|Merchant
