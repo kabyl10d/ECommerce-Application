@@ -510,7 +510,7 @@ class Program
                                             }
                                             if (int.Parse(sc3) < 0 || int.Parse(sc3) > 5)
                                             {
-                                                Console.Clear();
+                                                 Console.Clear();
 
                                                 throw new InvalidChoiceException("Invalid choice! Try again.");
                                             }

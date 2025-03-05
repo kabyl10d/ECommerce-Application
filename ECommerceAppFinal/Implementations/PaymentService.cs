@@ -69,13 +69,23 @@ public class PaymentService
             WriteCentered("3. PhonePe");
             //Console.Write();
             string? choice = ReadCentered("Enter your choice:");
-            string? paymentmethod = choice switch
+            string? paymentmethod;
+            if (choice == "1")
             {
-                "1" => "Google Pay",
-                "2" => "PayTm",
-                "3" => "PhonePe",
-                _ => null
-            };
+                paymentmethod = "Google Pay";
+            }
+            else if (choice == "2")
+            {
+                paymentmethod = "PayTm";
+            }
+            else if (choice == "3")
+            {
+                paymentmethod = "PhonePe";
+            }
+            else
+            {
+                paymentmethod = null;
+            }
 
             User u = UserService.users.FirstOrDefault(u => u.UserId == o.UserId);
             if (u != null)
