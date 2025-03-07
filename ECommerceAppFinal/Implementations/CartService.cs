@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ECommerceAppFinal.Exceptions;
+﻿using ECommerceAppFinal.Exceptions;
 
 public class CartService : ICartService
 {
@@ -21,7 +18,7 @@ public class CartService : ICartService
         Console.Write(new string(' ', spaces) + prompt);
         return Console.ReadLine();
     }
-    public void AddToCart(int userId, Product product, int quantity)
+    public bool AddToCart(int userId, Product product, int quantity)
     {
         try
         {
@@ -43,6 +40,138 @@ public class CartService : ICartService
 
             Console.Clear();
             WriteCentered($"{quantity} x {product.Name} => Added to cart!");
+            return true;
+        }
+        catch (NotEnoughStockException e)
+        {
+            WriteCentered(e.Message);
+            return false;
+        }
+        catch (Exception e)
+        {
+            WriteCentered($"Unexpected error: {e.Message}");
+            return false;
+        }
+    }
+
+    //public void UpdateCart(int userId, int productId, int newCount)
+    //{
+    //    try
+    //    {
+    //        if (newCount <= 0)
+    //        {
+    //            throw new InvalidProductDetailsException("Quantity must be greater than zero.");
+    //        }
+
+    //        if (!carts.TryGetValue(userId, out List<CartItem>? value) || value.Count == 0)
+    //        {
+    //            throw new CartEmptyException("Your cart is empty!");
+    //        }
+
+    //        var itemToUpdate = value.FirstOrDefault(c => c.ProductId == productId);
+    //        if (itemToUpdate == null)
+    //        {
+    //            throw new ProductNotFoundException("Product not found in cart!");
+    //        }
+
+    //        Product product = ProductService.Products.Find(p => p.ProductId == productId);
+    //        if (product == null)
+    //        {
+    //            throw new ProductNotFoundException("Product not found in inventory!");
+    //        }
+
+    //        int currentQuantity = itemToUpdate.Quantity;
+    //        int stockDifference = newCount - currentQuantity;
+
+    //        if (stockDifference > product.Stock)
+    //        {
+    //            throw new NotEnoughStockException($"Not enough stock for {product.Name}!");
+    //        }
+
+    //        itemToUpdate.UpdateQuantity(newCount);
+    //        product.Stock -= stockDifference; // Update product stock
+
+    //        WriteCentered($"Updated {product.Name} quantity to {newCount} in cart.");
+    //    }
+    //    catch (InvalidProductDetailsException e)
+    //    {
+    //        WriteCentered(e.Message);
+    //    }
+    //    catch (CartEmptyException e)
+    //    {
+    //        WriteCentered(e.Message);
+    //    }
+    //    catch (ProductNotFoundException e)
+    //    {
+    //        WriteCentered(e.Message);
+    //    }
+    //    catch (NotEnoughStockException e)
+    //    {
+    //        WriteCentered(e.Message);
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        WriteCentered($"Unexpected error: {e.Message}");
+    //    }
+    //}
+
+
+
+    public void UpdateCart(int userId, int productId, int newCount)
+    {
+        try
+        {
+            if (newCount <= 0)
+            {
+                throw new InvalidProductDetailsException("Quantity must be greater than zero.");
+            }
+
+            if (!carts.TryGetValue(userId, out List<CartItem>? value) || value.Count == 0)
+            {
+                throw new CartEmptyException("Your cart is empty!");
+            }
+
+            var itemToUpdate = value.FirstOrDefault(c => c.ProductId == productId);
+            if (itemToUpdate == null)
+            {
+                throw new ProductNotFoundException("Product not found in cart!");
+            }
+
+            Product product = ProductService.Products.Find(p => p.ProductId == productId);
+            if (product == null)
+            {
+                throw new ProductNotFoundException("Product not found in inventory!");
+            }
+
+            int currentQuantity = itemToUpdate.Quantity;
+            int stockDifference = newCount - currentQuantity;
+
+            if (stockDifference > 0 && stockDifference > product.Stock)
+            {
+                throw new NotEnoughStockException($"Not enough stock for {product.Name}!");
+            }
+
+            itemToUpdate.UpdateQuantity(newCount);
+            product.Stock -= stockDifference;
+
+            if (stockDifference < 0)
+            {
+                product.Stock += Math.Abs(stockDifference);
+            }
+
+            WriteCentered($"Updated {product.Name} quantity to {newCount} in cart.");
+        }
+        catch (InvalidProductDetailsException e)
+        {
+            WriteCentered(e.Message);
+        }
+        catch (CartEmptyException e)
+        {
+            WriteCentered(e.Message);
+        }
+        catch (ProductNotFoundException e)
+        {
+            WriteCentered(e.Message);
         }
         catch (NotEnoughStockException e)
         {
@@ -53,6 +182,8 @@ public class CartService : ICartService
             WriteCentered($"Unexpected error: {e.Message}");
         }
     }
+
+
 
     public void RemoveFromCart(int userId, int productId)
     {
@@ -88,6 +219,28 @@ public class CartService : ICartService
         }
     }
 
+    public bool DisplayCartItems(int userId)
+    {
+        try
+        {
+            if (!carts.TryGetValue(userId, out List<CartItem>? value) || value.Count == 0)
+            {
+                throw new CartEmptyException("Your cart is empty!");
+            }
+            WriteCentered("");
+            WriteCentered("Your Cart:");
+            WriteCentered("");
+
+            foreach (var item in value)
+                WriteCentered($"Id {item.ProductId}. {item.ProductName} => (${item.Price} x {item.Quantity})");
+            return true;
+        }
+        catch (CartEmptyException e)
+        {
+            WriteCentered(e.Message);
+            return false;
+        }
+    }
     public void ViewCart(int userId, OrderService o)
     {
         try
@@ -97,13 +250,16 @@ public class CartService : ICartService
                 throw new CartEmptyException("Your cart is empty!");
             }
             Console.Clear();
+            WriteCentered("");
             WriteCentered("Your Cart:");
+            WriteCentered("");
+
             foreach (var item in value)
-                WriteCentered($"- {item.ProductName} (${item.Price} x {item.Quantity})");
+                WriteCentered($"Product id: {item.ProductId}, Name: {item.ProductName} => (Rs.{item.Price} x {item.Quantity})");
 
             WriteCentered("Press 1 to Checkout, or any other key to go back.");
             if (ReadCentered("") == "1")
-                Checkout(userId, o);
+                Checkout(userId, o, value);
         }
         catch (CartEmptyException e)
         {
@@ -115,8 +271,9 @@ public class CartService : ICartService
         }
     }
 
-    public void Checkout(int userId, OrderService o)
+    public void Checkout(int userId, OrderService o, List<CartItem> prodlist)
     {
+    
         try
         {
             if (!carts.TryGetValue(userId, out List<CartItem>? value) || value.Count == 0)
@@ -128,20 +285,31 @@ public class CartService : ICartService
             WriteCentered($"Total Amount: ${totalAmount}");
             //WriteCentered("Select Payment Mode: 1. Card 2. UPI");
             //PaymentMode paymentMode = (Console.ReadLine() == "1") ? PaymentMode.Card : PaymentMode.UPI;
-            string choice = ReadCentered("Select Payment Mode: 1. Card 2. UPI");
+            WriteCentered("Select Payment Mode: 1. Card 2. UPI  (0 to cancel payment)");
+            string choice = ReadCentered("Enter choice :");
+            if (choice == "0")
+            {
+                throw new PaymentFailedException("Payment cancelled!");
+            }
             if (string.IsNullOrEmpty(choice))
             {
                 throw new InvalidChoiceException("Enter valid choice.");
             }
-            if(choice == "1")
+            if (choice == "1")
             {
                 PaymentMode paymentMode = PaymentMode.Card;
-                o.PlaceOrder(userId, totalAmount, paymentMode);
+                if (o.PlaceOrder(userId, prodlist, totalAmount, paymentMode))
+                {
+                    carts.Remove(userId);
+                }
             }
             else if (choice == "2")
             {
                 PaymentMode paymentMode = PaymentMode.UPI;
-                o.PlaceOrder(userId, totalAmount, paymentMode);
+                if (o.PlaceOrder(userId, prodlist, totalAmount, paymentMode))
+                {
+                    carts.Remove(userId);
+                }
             }
             else
             {
@@ -155,7 +323,7 @@ public class CartService : ICartService
                 Product product = ProductService.Products.Find(p => p.ProductId == item.ProductId);
                 product.Stock -= item.Quantity; // Update product stock
             }
-            carts.Remove(userId); // Empty cart after checkout
+            // Empty cart after checkout
         }
         catch (CartEmptyException e)
         {
@@ -164,6 +332,7 @@ public class CartService : ICartService
         catch (Exception e)
         {
             WriteCentered($"Unexpected error: {e.Message}");
+             
         }
     }
 }

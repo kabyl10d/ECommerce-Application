@@ -44,15 +44,26 @@ class UserService : IUserService
             return false;
         }
     }
-    public void Register(string username, string mailid, string password,string phone, string role,string upiid, int upipin)
+    public void Register(string username, string mailid, string password,string phone, string role)
     {
 
    
         int userId = users.Count + 1;
-        User newUser = role.ToLower() == "merchant"
-            ? new Merchant(userId, mailid, username, password, phone, upiid, upipin)
-            : new Customer(userId, mailid, username, password, phone, upiid, upipin);
+        User newUser;
+        if (role.ToLower() == "merchant")
+        {
+            newUser = new Merchant(userId, mailid, username, password, phone);
+        }
+        else if (role.ToLower() == "customer")
+        {
+            newUser = new Customer(userId, mailid, username, password, phone);
+        }
+        else  
+        {
+            newUser = new Admin(userId, mailid, username, password, phone);
+        }
          
+
         users.Add(newUser);
 
 

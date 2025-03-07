@@ -1,18 +1,31 @@
 ﻿public enum Category
 {
-    Electronics, Mobiles, HomeKitchen, Fashion, Beauty, Health, BabyProducts, Stationary
+    Electronics = 1,
+    Mobiles, 
+    HomeKitchen, 
+    Fashion, 
+    Beauty, 
+    Health, 
+    BabyProducts, 
+    Stationary
 }
 
 public enum OrderStatus
 {
-    Pending, Delivered
+    Processing, Delivered
 }
 
 public enum PaymentMode
 {
     Card, UPI
 }
-
+public enum UPI
+{
+    GooglePay = 1,
+    PhonePe,
+    PayTM,
+     
+}
 public enum ReviewType
 {
     Critical=1,
