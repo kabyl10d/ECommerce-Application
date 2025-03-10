@@ -5,12 +5,17 @@
     public double Price { get; set; }
     public int Quantity { get; set; }
 
-    public CartItem(int productId, string productName, double price, int quantity)
+    public string MerchName { get; set; }
+
+    public OrderStatus Status { get; set; }
+
+    public CartItem(int productId, string productName, double price, int quantity, string merchname)
     {
         ProductId = productId;
         ProductName = productName;
         Price = price;
         Quantity = quantity;
+        MerchName = merchname;
     }
 
     public void UpdateQuantity(int newQuantity)

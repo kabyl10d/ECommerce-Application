@@ -34,7 +34,7 @@ public class CartService : ICartService
             if (existingItem != null)
                 existingItem.UpdateQuantity(existingItem.Quantity + quantity);
             else
-                carts[userId].Add(new CartItem(product.ProductId, product.Name, product.Price, quantity));
+                carts[userId].Add(new CartItem(product.ProductId, product.Name, product.Price, quantity, product.MerchName));
 
             product.Stock -= quantity; // Update product stock
 
@@ -300,7 +300,13 @@ public class CartService : ICartService
                 PaymentMode paymentMode = PaymentMode.Card;
                 if (o.PlaceOrder(userId, prodlist, totalAmount, paymentMode))
                 {
+
                     carts.Remove(userId);
+                    //foreach (var item in value)
+                    //{
+                    //    Product product = ProductService.Products.Find(p => p.ProductId == item.ProductId);
+                    //    product.Stock -= item.Quantity; // Update product stock
+                    //}
                 }
             }
             else if (choice == "2")
@@ -309,6 +315,11 @@ public class CartService : ICartService
                 if (o.PlaceOrder(userId, prodlist, totalAmount, paymentMode))
                 {
                     carts.Remove(userId);
+                    //foreach (var item in value)
+                    //{
+                    //    Product product = ProductService.Products.Find(p => p.ProductId == item.ProductId);
+                    //    product.Stock -= item.Quantity; // Update product stock
+                    //}
                 }
             }
             else
@@ -318,11 +329,11 @@ public class CartService : ICartService
 
             //o.PlaceOrder(userId, totalAmount, paymentMode);
 
-            foreach (var item in value)
-            {
-                Product product = ProductService.Products.Find(p => p.ProductId == item.ProductId);
-                product.Stock -= item.Quantity; // Update product stock
-            }
+            //foreach (var item in value)
+            //{
+            //    Product product = ProductService.Products.Find(p => p.ProductId == item.ProductId);
+            //    product.Stock -= item.Quantity; // Update product stock
+            //}
             // Empty cart after checkout
         }
         catch (CartEmptyException e)

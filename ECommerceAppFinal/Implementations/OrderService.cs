@@ -61,13 +61,13 @@ public class OrderService : IOrderService
                 }
                 WriteCentered($"ID: {newOrder.OrderId}, User: {newOrder.UserId}, Amount: ${newOrder.TotalAmount} ");
                 WriteCentered($"Shipping Address: {newOrder.ShippingAddress}\n");
-                //WriteCentered("Products:");
+                WriteCentered("Products:");
                 foreach (var p in prodlist)
                 {
-                    WriteCentered($"Product: {p.ProductName}, Quantity: {p.Quantity}, Price: ${p.Price} ");
+                    WriteCentered($"Product id: {p.ProductId}, Product: {p.ProductName}, Quantity: {p.Quantity}, Price: ${p.Price}, Status: {p.Status}");
                 }
                 WriteCentered("");
-                WriteCentered($"Status: {newOrder.Status}, Payment: {paymentMode2}");
+                WriteCentered($"Payment: {paymentMode2}");
 
                 WriteCentered("");
                 newOrder.ProdList = prodlist;
@@ -113,10 +113,51 @@ public class OrderService : IOrderService
             WriteCentered("Products:");
             foreach (var p in order.ProdList)
             {
-                WriteCentered($"Product: {p.ProductName}, Quantity: {p.Quantity}, Price: ${p.Price} ");
+                WriteCentered($"Product id: {p.ProductId}, Product: {p.ProductName}, Quantity: {p.Quantity}, Price: ${p.Price}, Status: {p.Status}");
             }
             WriteCentered("");
-            WriteCentered($"Status: {order.Status}, Payment: {paymentMode2}");
+            WriteCentered($"Payment: {paymentMode2}");
+
+            WriteCentered("");
+        }
+        return true;
+
+    }
+    public bool ViewOrdersForMerchant(Merchant m)
+    {
+        if (orders.Count == 0)
+        {
+            Console.Clear();
+            WriteCentered("No orders found.");
+            return false;
+        }
+        WriteCentered("Orders:\n");
+        foreach (var order in orders)
+        {
+            string paymentMode2 = "";
+            if (order.PaymentMethod == PaymentMode.UPI)
+            {
+                paymentMode2 = order.UPIMethod.ToString();
+            }
+            else if (order.PaymentMethod == PaymentMode.Card)
+            {
+                paymentMode2 = order.PaymentMethod.ToString();
+            }
+            WriteCentered("");
+            //WriteCentered($"ID: {order.OrderId}, User: {order.UserId}, Amount: ${order.TotalAmount}, Status: {order.Status}, Payment: {order.PaymentMethod}");
+            WriteCentered($"ID: {order.OrderId}, User: {order.UserId}, Amount: ${order.TotalAmount} ");
+            WriteCentered($"Shipping Address: {order.ShippingAddress}\n");
+            WriteCentered("Products:");
+            foreach (var p in order.ProdList)
+            {
+                if(p.MerchName == m.Username)
+                {
+                    WriteCentered($"Product id: {p.ProductId}, Product: {p.ProductName}, Quantity: {p.Quantity}, Price: ${p.Price}, Status: {order.Status}");
+                }
+                //WriteCentered($"Product id: {p.ProductId}, Product: {p.ProductName}, Quantity: {p.Quantity}, Price: ${p.Price}, Status: {order.Status}");
+            }
+            WriteCentered("");
+            WriteCentered($"Payment: {paymentMode2}");
 
             WriteCentered("");
         }
@@ -124,7 +165,7 @@ public class OrderService : IOrderService
 
     }
 
-    public void UpdateOrderStatus(int orderId)
+    public void UpdateOrderStatus(int orderId,int pid)
     {
         var order = orders.FirstOrDefault(o => o.OrderId == orderId);
         if (order == null)
@@ -133,13 +174,41 @@ public class OrderService : IOrderService
             WriteCentered("Order not found!");
             return;
         }
-        if(order.Status == OrderStatus.Delivered)
+
+        CartItem product = order.ProdList.FirstOrDefault(p => p.ProductId == pid);
+
+        if (product.Status == OrderStatus.Delivered)
         {
             WriteCentered("Order already delivered!");
             return;
         }
-        order.Status = OrderStatus.Delivered;
-        WriteCentered($"Order #{orderId} marked as Delivered!");
+        product.Status = OrderStatus.Delivered;
+        WriteCentered($"Product {product.ProductId} - {product.ProductName} in Order #{orderId} marked as Delivered!");
     }
 
+   
+    public void RecieveOrder(int orderId,int pid)
+    {
+        var order = orders.FirstOrDefault(o => o.OrderId == orderId);
+        if (order == null)
+        {
+            Console.Clear();
+            WriteCentered("Order not found!");
+            return;
+        }
+        CartItem product = order.ProdList.FirstOrDefault(p => p.ProductId == pid);
+
+        if (product.Status == OrderStatus.NotDelivered)
+        {
+            WriteCentered("Order already marked as Not Delivered!");
+            return;
+        }
+        if (product.Status == OrderStatus.Delivered)
+        {
+            WriteCentered("Order already delivered!");
+            return;
+        }
+        product.Status = OrderStatus.NotDelivered;
+        WriteCentered($"Product {product.ProductId} - {product.ProductName} in Order #{orderId} recieved !");
+    }
 }

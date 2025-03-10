@@ -12,7 +12,7 @@
 
 public enum OrderStatus
 {
-    Processing, Delivered
+    Processing, Delivered, NotDelivered
 }
 
 public enum PaymentMode

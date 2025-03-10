@@ -221,8 +221,19 @@ class Program
 
                         string runmail = ReadCentered("Enter Username / Mail Address : ");
                         if(runmail == "0") { Console.Clear(); goto r1; }
+                        if(string.IsNullOrEmpty(runmail))
+                        {
+                            WriteCentered("Invalid input! Try again.");
+                            goto retry;
+                        }
+                    retry1:
                         string rpasswd = ReadCentered("Enter Password : ");
                         if(rpasswd == "0") { Console.Clear(); goto r1; }
+                        if(string.IsNullOrEmpty(rpasswd))
+                        {
+                            WriteCentered("Invalid input! Try again.");
+                            goto retry1;
+                        }
 
                         User user = userService.Login(runmail, rpasswd);
                         if (user == null) { goto retry; }
@@ -244,23 +255,25 @@ class Program
                                 WriteCentered("2. Delete Products");
                                 WriteCentered($"3. View Products added by {user.Username}");
                                 WriteCentered("4. Update stock of a product");
+                                WriteCentered("5. Recieve order and update status");
                                 WriteCentered("5. View Profile");
                                 WriteCentered("(Press 0 to Logout)");
 
+                                cc2:
                                 //int c2 = int.Parse(ReadCentered("Enter choice : "));
                                 string sc2 = ReadCentered("Enter Choice :");
                                 try
                                 {
                                     if (sc2 == "")
                                     {
-                                        Console.Clear();
+                                        //Console.Clear();
                                         throw new InvalidChoiceException("Choice can't be empty. Try again.");
                                     }
                                 }
                                 catch (InvalidChoiceException ex)
                                 {
                                     WriteCentered(ex.Message);
-                                    goto c2;
+                                    goto cc2;
                                 }
                                 int c2 = int.Parse(sc2);
 
@@ -274,7 +287,7 @@ class Program
                                 catch (InvalidChoiceException ex)
                                 {
                                     WriteCentered(ex.Message);
-                                    goto c2;
+                                    goto cc2;
                                 }
 
                                 if (c2 == 0) { Console.Clear(); break; }
@@ -531,9 +544,79 @@ class Program
                                             }
                                         }
                                         break;
-                                        
-                                    //view profile of the merchant    
+
                                     case 5:
+                                        Console.Clear();
+                                        WriteCentered("");
+                                        Merchant mm = (Merchant)user;
+                                    oid:
+                                        if (orderService.ViewOrdersForMerchant(mm))
+                                        {
+
+                                            string oid = ReadCentered("Enter order id to update status (0 to back): ");
+                                            try
+                                            {
+
+                                                if (oid == "0")
+                                                {
+                                                    Console.Clear();
+                                                    goto c2;
+
+                                                }
+                                                if (string.IsNullOrEmpty(oid))
+                                                {
+                                                    throw new InvalidOrderDetailsException();
+
+                                                }
+                                                if (int.Parse(oid) < 1)
+                                                {
+                                                    throw new InvalidOrderDetailsException();
+                                                }
+                                                else
+                                                {
+                                                opid:
+                                                    string opid = ReadCentered("Enter product id from the order to update status (0 to back): ");
+                                                    try
+                                                    {
+                                                        if (oid == "0")
+                                                        {
+                                                            Console.Clear();
+                                                            goto oid;
+
+                                                        }
+                                                        if (string.IsNullOrEmpty(oid))
+                                                        {
+                                                            throw new InvalidOrderDetailsException("Enter valid id.");
+
+                                                        }
+                                                        if (int.Parse(oid) < 1)
+                                                        {
+                                                            throw new InvalidOrderDetailsException("Enter valid id.");
+                                                        }
+                                                    }
+                                                    catch (InvalidOrderDetailsException ex)
+                                                    {
+                                                        WriteCentered(ex.Message);
+                                                        goto opid;
+                                                    }
+                                                    orderService.RecieveOrder(int.Parse(oid), int.Parse(opid));
+                                                    goto c2;
+                                                }
+                                                
+                                            }
+                                            catch (InvalidOrderDetailsException ex)
+                                            {
+                                                WriteCentered(ex.Message);
+                                                goto oid;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            goto c2;
+                                        }
+                                        //break;
+                                    //view profile of the merchant    
+                                    case 6:
                                         Console.Clear();
                                         WriteCentered("My Profile - ");
                                         user.DisplayDetails();
@@ -550,6 +633,7 @@ class Program
 
                             while (true)
                             {
+                                cc2:
                                 WriteCentered("\n*** Products Inventory ***\n");
                                 productService.DisplayProducts(productService.GetAllProducts());
                             //WriteCentered("\nCustomer Menu\n\n1. Shopping\n2. Cart and Checkout\n3. View Profile\n" +
@@ -573,7 +657,7 @@ class Program
                                 catch (InvalidChoiceException ex)
                                 {
                                     WriteCentered(ex.Message);
-                                    goto c2;
+                                    goto cc2;
                                 }
                                 int c2 = int.Parse(sc2);
                                 try
@@ -623,7 +707,7 @@ class Program
                                             {
                                                 throw new InvalidChoiceException("Invalid choice! Try again.");
                                             }
-                                            if (int.Parse(sc3) < 0 || int.Parse(sc3) > 6)
+                                            if (int.Parse(sc3) < 0 || int.Parse(sc3) > 4)
                                             {
                                                 Console.Clear();
 
@@ -686,7 +770,32 @@ class Program
                                                     }
                                                     else
                                                     {
-                                                        orderService.UpdateOrderStatus(int.Parse(oid));
+                                                        opid:
+                                                        string opid = ReadCentered("Enter product id from the order to update status (0 to back): ");
+                                                        try
+                                                        {
+                                                            if (oid == "0")
+                                                            {
+                                                                Console.Clear();
+                                                                goto oid;
+
+                                                            }
+                                                            if (string.IsNullOrEmpty(oid))
+                                                            {
+                                                                throw new InvalidOrderDetailsException("Enter valid id.");
+
+                                                            }
+                                                            if (int.Parse(oid) < 1)
+                                                            {
+                                                                throw new InvalidOrderDetailsException("Enter valid id.");
+                                                            }
+                                                        }
+                                                        catch (InvalidOrderDetailsException ex)
+                                                        {
+                                                            WriteCentered(ex.Message);
+                                                            goto opid;
+                                                        }
+                                                        orderService.UpdateOrderStatus(int.Parse(oid),int.Parse(opid));
                                                         goto c3;
                                                     }
                                                 }
@@ -1191,39 +1300,36 @@ class Program
                                                     goto ar1;
                                                 }
 
-                                                WriteCentered("Delete a Product");
+                                                WriteCentered($"Delete Product from {(Category)Enum.Parse(typeof(Category), sc4)}");
 
+                                                //productService.DisplayProductsWithDetails(pname, (Category)Enum.Parse(typeof(Category), sc4));
                                                 productService.DisplayProductNamesWithCount((Category)Enum.Parse(typeof(Category), sc4));
 
                                                 WriteCentered("");
-                                            pid:
-                                                string pid = ReadCentered("Enter product id (0 to back): ");
+                                            pname:
+                                                string pname1 = ReadCentered("Enter product name to delete (0 to back) : ");
                                                 try
                                                 {
-                                                    if (pid == "0")
+                                                    if (pname1 == "0")
                                                     {
                                                         goto ar1;
                                                     }
-                                                    if (string.IsNullOrEmpty(pid))
+                                                    if (string.IsNullOrEmpty(pname1))
                                                     {
-                                                        throw new InvalidProductDetailsException("Invalid product id! Try again.");
+                                                        throw new InvalidProductDetailsException("Invalid product name! Try again.");
 
-                                                    }
-                                                    if (int.Parse(pid) < 1)
-                                                    {
-                                                        throw new InvalidProductDetailsException("Invalid product id! Try again.");
-                                                    }
-
+                                                    } 
+                                                    
                                                 }
                                                 catch (InvalidProductDetailsException ex)
                                                 {
                                                     WriteCentered(ex.Message);
-                                                    goto pid;
+                                                    goto pname;
                                                 }
                                                 WriteCentered("");
                                                 try
                                                 {
-                                                    if (!productService.DeleteProduct(int.Parse(pid)))
+                                                    if (!productService.DeleteProduct(pname1))
                                                     {
                                                         throw new ProductNotFoundException("Product not found.");
                                                     }
@@ -1231,9 +1337,9 @@ class Program
                                                 catch (ProductNotFoundException ex)
                                                 {
                                                     WriteCentered(ex.Message);
-                                                    goto pid;
+                                                    goto pname;
 
-                                                }
+                                                } 
                                                 break;
 
                                             default:

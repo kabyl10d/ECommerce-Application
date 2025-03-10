@@ -161,6 +161,36 @@ class ProductService : IProductService
             return false;
         }
     }
+
+    public bool DeleteProduct(string name)
+    {
+        try
+        {
+            List<Product> productsToRemove = Products.Where(p => p.Name == name).ToList();
+            if (productsToRemove.Count == 0)
+            {
+                throw new ProductNotFoundException($"Product with name {name} not found.");
+            }
+            foreach (var p in productsToRemove)
+            {
+                Products.Remove(p);
+            }
+            Console.Clear();
+
+            WriteCentered($"Product {name} removed successfully.");
+            return true;
+        }
+        catch (ProductNotFoundException ex)
+        {
+            WriteCentered(ex.Message);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            WriteCentered($"Unexpected error: {ex.Message}");
+            return false;
+        }
+    }
     public bool DeleteProduct(int id)
     {
         try
@@ -192,7 +222,7 @@ class ProductService : IProductService
     }
     public bool SearchAndBuy(Customer user, CartService cart, ReviewService reviewService)
     {
-        int oid;
+        string oid;
         string confirm, confirm2;
     x:
         string keyword = ReadCentered("Enter keyword : ");
@@ -252,53 +282,75 @@ class ProductService : IProductService
                 }
                 if (confirm2 == "1")
                 {
+                ym:
                     confirm = ReadCentered("Do you want to cart a product?(y/n):");
                     if (confirm == "y")
                     {
                     y:
-                        oid = int.Parse(ReadCentered("Enter product id to add to cart (0 to cancel): "));
+                        oid = ReadCentered("Enter product id to add to cart (0 to cancel): ");
                         try
                         {
-                            if (oid == 0)
+
+                            if (oid == "0")
                             {
                                 goto c3;
                             }
-                            if (oid < 1)
+                            if (string.IsNullOrEmpty(oid))
+                            {
+                                throw new InvalidProductDetailsException("Enter valid product id.");
+                            }
+                            if (int.Parse(oid) < 1)
                             {
                                 throw new InvalidProductDetailsException("Invalid product id! Try again.");
                             }
-                            else
+
+
+                            foreach (Product product in foundprods)
                             {
-                                foreach (Product product in foundprods)
+                                if (product.ProductId == int.Parse(oid))
                                 {
-                                    if (product.ProductId == oid)
+                                quant:
+                                    WriteCentered("");
+                                    string q = ReadCentered("Enter quantity : ");
+                                    if (q == "0")
                                     {
-                                    quant:
-                                        WriteCentered("Enter quantity : ");
-                                        int q = int.Parse(ReadCentered(""));
-                                        if (!cart.AddToCart(user.UserId, product, q))   //continue with adding goto labels
+                                        goto c3;
+                                    }
+                                    if (string.IsNullOrEmpty(q) || int.Parse(q) < 1)
+                                    {
+                                        WriteCentered("Enter valid quantity.");
+                                        goto quant;
+                                    }
+                                    if (!cart.AddToCart(user.UserId, product, int.Parse(q)))   //continue with adding goto labels
+                                    {
+                                        goto quant;
+                                    }
+                                    else
+                                    {
+                                    y1:
+                                        WriteCentered("");
+                                        confirm = ReadCentered("Do you want to search another product? (y/n) :");
+                                        if (confirm == "n")
                                         {
-                                            goto quant;
+                                            //.Clear();
+                                            goto c3;
+                                            //return false;
+                                        }
+                                        else if (confirm == "y")
+                                        {
+                                            goto x;
                                         }
                                         else
                                         {
-                                            WriteCentered("");
-                                            confirm = ReadCentered("Do you want to search another product? (y/n) :");
-                                            if (confirm != "y")
-                                            {
-                                                //.Clear();
-                                                goto c3;
-                                                //return false;
-                                            }
-                                            else
-                                            {
-                                                goto x;
-                                            }
+                                            WriteCentered("Invalid choice! Try again.");
+                                            goto y1;
                                         }
 
                                     }
+
                                 }
                             }
+
                         }
                         catch (InvalidProductDetailsException ex)
                         {
@@ -306,21 +358,33 @@ class ProductService : IProductService
                             goto y;
                         }
                     }
-                    else
+                    else if (confirm == "n")
                     {
-                        //search:
+                    //search:
+                    y2:
                         confirm = ReadCentered("Do you want to search another product? (y/n) :");
-                        if (confirm != "y")
+                        if (confirm == "n")
                         {
                             //goto c3;
                             //.Clear();
                             return false;
                         }
-                        else
+                        else if (confirm == "y")
                         {
                             goto x;
                         }
+                        else
+                        {
+                            WriteCentered("Invalid choice! Try again.");
+                            goto y2;
+                        }
                     }
+                    else
+                    {
+                        WriteCentered("Invalid choice! Try again.");
+                        goto ym;
+                    }
+
                 }
                 else if (confirm2 == "2")
                 {
@@ -459,6 +523,7 @@ class ProductService : IProductService
         //var productNames = Products.Select(p => p.Name).Distinct();
         var productNames = Products.Where(p => p.Categories == category).Select(p => p.Name).Distinct();
         WriteCentered("");
+        var productids = Products.Where(p => p.Categories == category).Select(p => p.ProductId).Distinct().ToList();
         foreach (string name in productNames)
         {
             int count = GetTotalStockCount(name);
@@ -498,6 +563,10 @@ class ProductService : IProductService
         string newStock = ReadCentered("Enter new stock: ");
         try
         {
+            if (string.IsNullOrEmpty(newStock))
+            {
+                throw new InvalidProductDetailsException("Enter valid stock.");
+            }
             if (newStock == "0")
             {
                 return false;
@@ -519,7 +588,7 @@ class ProductService : IProductService
         }
         catch (Exception ex)
         {
-            WriteCentered($"Unexpected error: {ex.Message}");
+            WriteCentered($"{ex.Message}");
             return false;
         }
     }

@@ -106,7 +106,7 @@ public class PaymentService
             }
 
 
-            User u = UserService.users.FirstOrDefault(u => u.UserId == o.UserId);
+            User? u = UserService.users.FirstOrDefault(u => u.UserId == o.UserId);
             if (u != null)
             { }
             int tries = 3;
@@ -139,6 +139,11 @@ public class PaymentService
                 {
                     Console.Clear();
                     goto start;
+                }
+                if(string.IsNullOrEmpty(password))
+                {
+                    WriteCentered("Invalid pin!");
+                    goto pin;
                 }
                 if (u.Upipin[paymentmethod].Contains(password))
                 {
